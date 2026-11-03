@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Costing Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf6f4; --card:#fffdfc; --line:#eaddd9; --soft:#f7ecea; --soft2:#f3e6e4;
+  --ink:#2b2325; --muted:#8a7a7d; --accent:#7a4a56; --accent-soft:#efe1e4;
+  --danger:#b3453f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:"Playfair Display",Georgia,serif;font-weight:400}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+header.top{margin-bottom:22px}
+header.top h1{font-size:30px;margin:0 0 2px}
+header.top p{margin:0;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.sheet{position:static!important}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:22px}
+.card h2{font-size:20px;margin:0 0 16px;display:flex;align-items:center;gap:12px}
+.badge{width:34px;height:34px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font:500 13px Inter,sans-serif;color:var(--muted)}
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.toolbar select{flex:1;min-width:180px}
+select,input[type=text],input[type=number]{
+  font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;cursor:pointer;color:var(--ink)}
+.btn{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:9px 16px;white-space:nowrap}
+.btn:hover{background:var(--soft2)}
+.btn.dashed{border-style:dashed;background:var(--accent-soft)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:#683d48}
+.icon{background:none;border:0;padding:6px;color:var(--muted);border-radius:8px;display:inline-grid;place-items:center}
+.icon:hover{color:var(--accent);background:var(--soft)}
+.icon.del:hover{color:var(--danger)}
+.icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.head,.row{display:grid;grid-template-columns:minmax(0,1fr) 72px 100px 96px 64px;gap:10px;align-items:center}
+.head{font-size:11px;letter-spacing:.06em;color:var(--muted);padding:0 12px 6px;text-transform:uppercase}
+.head span:nth-child(n+2){text-align:right}
+.row{background:var(--soft);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.row .name{font-weight:500;overflow-wrap:anywhere}
+.row .note{font-size:12px;color:var(--muted)}
+.row input{background:#fff;text-align:center;padding:7px 8px}
+.row .tot{text-align:right;font-variant-numeric:tabular-nums;font-size:14px}
+.row .acts{display:flex;justify-content:flex-end}
+@media(max-width:620px){
+  .head{display:none}
+  .row{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"n n a" "q u t"}
+  .row .info{grid-area:n}.row .acts{grid-area:a}
+  .row .q{grid-area:q}.row .u{grid-area:u}.row .tot{grid-area:t}
+}
+.empty{color:var(--muted);text-align:center;padding:18px;border:1px dashed var(--line);border-radius:14px}
+.sub{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.sub strong{font-weight:500}.sub small{color:var(--muted)}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:560px){.fields{grid-template-columns:1fr}}
+label.f{display:block;font-size:13px;color:var(--muted)}
+label.f input{margin-top:4px}
+.extra{display:grid;grid-template-columns:1fr 130px 40px;gap:10px;margin-bottom:8px}
+hr{border:0;border-top:1px solid var(--line);margin:20px 0}
+/* sheet */
+.sheet{position:sticky;top:18px;padding:0;overflow:hidden}
+.sheet .hd{padding:18px 22px;background:var(--soft);border-bottom:1px solid var(--line)}
+.sheet .hd small{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sheet .hd h3{font-size:20px;margin:2px 0 0}
+.sheet .bd{padding:18px 22px 22px}
+.grp{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.line{display:flex;gap:8px;font-size:14px;padding:2px 0}
+.line .l{flex:0 1 auto;min-width:0;overflow-wrap:anywhere}
+.line .d{flex:1;border-bottom:1px dotted #d8c8c5;transform:translateY(-5px);min-width:12px}
+.line .v{font-variant-numeric:tabular-nums}
+.line.strong{font-weight:500}
+.price{background:var(--accent-soft);border-radius:16px;padding:14px 16px;margin:16px 0}
+.price small{color:var(--muted);font-size:13px}
+.price .big{font:500 34px/1.2 "Playfair Display",Georgia,serif}
+.price .rnd{font-size:12px;color:var(--muted)}
+.keep{display:flex;gap:10px;align-items:center;font-size:14px;margin:12px 0}
+.warn{font-size:12px;color:var(--muted);display:flex;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.mk{display:flex;align-items:center;gap:8px;margin-top:6px}
+.mk input{width:90px;background:var(--soft)}
+dialog{border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);padding:24px;width:min(440px,92vw)}
+dialog::backdrop{background:rgba(43,35,37,.35)}
+dialog h3{margin:0 0 14px;font-size:20px}
+dialog .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+dialog .full{grid-column:1/-1}
+dialog .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.hint{font-size:13px;color:var(--muted);background:var(--soft);padding:10px 12px;border-radius:10px;margin-bottom:12px}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:4px}
+.chk input{width:auto}
+@media print{.toolbar,.icon,.btn,.actions{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Costing sheet</h1>
+    <p>Add your materials, labor, and mark-up to find the right selling price.</p>
+  </header>
+
+  <div class="layout">
+    <main>
+      <section class="card">
+        <h2><span class="badge">1</span>Materials</h2>
+        <div class="toolbar">
+          <select id="saved" aria-label="Saved materials"></select>
+          <button class="btn" id="inkBtn" type="button">Ink cost</button>
+          <button class="btn dashed" id="addBtn" type="button">+ Add material</button>
+        </div>
+        <div class="head"><span>Item</span><span>Qty</span><span>Unit ₱</span><span>Total</span><span></span></div>
+        <div id="rows"></div>
+      </section>
+
+      <section class="card">
+        <h2><span class="badge">2</span>Overhead</h2>
+        <div class="sub"><strong>Your labor</strong><small id="laborPer"></small></div>
+        <div class="fields">
+          <label class="f">Day rate (₱)<input type="number" id="rate" min="0" step="any" inputmode="decimal"></label>
+          <label class="f">Minutes to make<input type="number" id="mins" min="0" step="any" inputmode="decimal"></label>
+          <label class="f">Hours per day<input type="number" id="hrs" min="1" step="any" inputmode="decimal"></label>
+        </div>
+        <hr>
+        <div class="sub"><strong>Other overhead</strong><small>Electricity, rent, delivery… per piece</small></div>
+        <div id="extras"></div>
+        <button class="btn dashed" id="addExtra" type="button">+ Add overhead</button>
+      </section>
+
+      <section class="card">
+        <h2><span class="badge">3</span>Pricing</h2>
+        <div class="fields">
+          <label class="f">Mark-up (%)<input type="number" id="markup" min="0" step="any" inputmode="decimal"></label>
+          <label class="f">Round up to nearest (₱)<input type="number" id="roundTo" min="0" step="any" inputmode="decimal"></label>
+        </div>
+      </section>
+    </main>
+
+    <aside class="card sheet" aria-live="polite">
+      <div class="hd"><small>Your costing sheet</small><h3 id="sheetTitle">Sample computation</h3></div>
+      <div class="bd" id="sheet"></div>
+    </aside>
+  </div>
+</div>
+
+<dialog id="matDlg">
+  <form method="dialog" id="matForm">
+    <h3 id="matTitle">Add material</h3>
+    <div class="grid">
+      <label class="f full">Item<input type="text" id="mName" required></label>
+      <label class="f full">Note (size, brand, batch…)<input type="text" id="mNote"></label>
+      <label class="f">Qty<input type="number" id="mQty" min="0" step="any" value="1"></label>
+      <label class="f">Unit price (₱)<input type="number" id="mUnit" min="0" step="any" value="0"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="mSave"> Save to my materials</label>
+    <div class="actions">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn primary" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="inkDlg">
+  <form method="dialog" id="inkForm">
+    <h3>Ink cost</h3>
+    <div class="hint">Cost per page = ink price ÷ pages it prints. Then multiply by the pages this job uses.</div>
+    <div class="grid">
+      <label class="f">Ink price (₱)<input type="number" id="iPrice" min="0" step="any"></label>
+      <label class="f">Pages it prints<input type="number" id="iYield" min="1" step="any"></label>
+      <label class="f full">Pages for this job<input type="number" id="iPages" min="1" step="any" value="1"></label>
+      <label class="f full">Label<input type="text" id="iNote" value="Mostly text"></label>
+    </div>
+    <div class="hint" id="iResult">Ink cost: ₱0.00</div>
+    <div class="actions">
+      <button class="btn" type="button" data-close>Cancel</button>
+      <button class="btn primary" type="submit">Add to materials</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const KEY = "costing-sheet-v1";
+const uid = () => Math.random().toString(36).slice(2, 9);
+const peso = n => "₱" + (Number(n) || 0).toLocaleString("en-PH", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const sample = () => ({
+  title: "Sample computation",
+  materials: [
+    {id: uid(), name: "Ream Cutter", note: "Paper Cutte", qty: 1, unit: 5300},
+    {id: uid(), name: "A4 Bond Paper", note: "80gsm", qty: 6, unit: 0.438},
+    {id: uid(), name: "Printer ink", note: "Mostly text, 3000 pages", qty: 1, unit: 1671.43},
+    {id: uid(), name: "Ticket Cutter", note: "Cutter", qty: 1, unit: 670},
+    {id: uid(), name: "Padding Glue", note: "Custom Batch", qty: 1, unit: 80},
+    {id: uid(), name: "Wooden Press", note: "Custom Batch", qty: 1, unit: 115}
+  ],
+  saved: [],
+  rate: 500, mins: 60, hrs: 8,
+  extras: [],
+  markup: 100, roundTo: 5
+});
+
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch (e) { S = sample(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+
+const $ = id => document.getElementById(id);
+const ICON_EDIT = '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+const ICON_DEL = '<svg viewBox="0 0 24 24"><rect x="5" y="6" width="14" height="15" rx="2"/><path d="M3 6h18M9 6V3h6v3"/></svg>';
+
+function calc() {
+  const goods = S.materials.map(m => ({...m, total: num(m.qty) * num(m.unit)}));
+  const goodsTotal = goods.reduce((a, m) => a + m.total, 0);
+  const labor = num(S.hrs) > 0 ? num(S.rate) / num(S.hrs) / 60 * num(S.mins) : 0;
+  const extras = S.extras.map(e => ({...e, amount: num(e.amount)}));
+  const overhead = labor + extras.reduce((a, e) => a + e.amount, 0);
+  const total = goodsTotal + overhead;
+  const markAmt = total * num(S.markup) / 100;
+  const price = total + markAmt;
+  const step = num(S.roundTo);
+  const rounded = step > 0 ? Math.ceil(price / step - 1e-9) * step : price;
+  return {goods, goodsTotal, labor, extras, overhead, total, markAmt, price, rounded};
+}
+
+function renderRows() {
+  const box = $("rows");
+  if (!S.materials.length) { box.innerHTML = '<div class="empty">No materials yet. Pick one from your saved list or add a new one.</div>'; return; }
+  box.innerHTML = S.materials.map(m => `
+    <div class="row" data-id="${m.id}">
+      <div class="info"><div class="name">${esc(m.name)}</div>${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}</div>
+      <div class="q"><input type="number" min="0" step="any" value="${esc(m.qty)}" data-f="qty" aria-label="Quantity"></div>
+      <div class="u"><input type="number" min="0" step="any" value="${esc(m.unit)}" data-f="unit" aria-label="Unit price"></div>
+      <div class="tot">${peso(num(m.qty) * num(m.unit))}</div>
+      <div class="acts">
+        <button class="icon" data-act="edit" aria-label="Edit ${esc(m.name)}">${ICON_EDIT}</button>
+        <button class="icon del" data-act="del" aria-label="Delete ${esc(m.name)}">${ICON_DEL}</button>
+      </div>
+    </div>`).join("");
+}
+
+function renderSaved() {
+  const sel = $("saved");
+  sel.innerHTML = '<option value="">Pick from your saved materials…</option>' +
+    S.saved.map(s => `<option value="${s.id}">${esc(s.name)}${s.note ? " · " + esc(s.note) : ""} (${peso(s.unit)})</option>`).join("");
+}
+
+function renderExtras() {
+  $("extras").innerHTML = S.extras.map(e => `
+    <div class="extra" data-id="${e.id}">
+      <input type="text" value="${esc(e.name)}" data-f="name" placeholder="e.g. Electricity" aria-label="Overhead name">
+      <input type="number" min="0" step="any" value="${esc(e.amount)}" data-f="amount" placeholder="₱" aria-label="Amount">
+      <button class="icon del" data-act="del" aria-label="Remove">${ICON_DEL}</button>
+    </div>`).join("");
+}
+
+function renderSheet() {
+  const c = calc();
+  const line = (l, v, cls = "") => `<div class="line ${cls}"><span class="l">${l}</span><span class="d"></span><span class="v">${v}</span></div>`;
+  $("laborPer").textContent = peso(c.labor) + " per piece";
+  $("sheet").innerHTML = `
+    <p class="grp">Cost of goods</p>
+    ${c.goods.map(m => line(esc(m.name) + (m.note ? " · " + esc(m.note) : "") + (num(m.qty) !== 1 ? " ×" + num(m.qty) : ""), peso(m.total))).join("") || '<div class="note" style="color:var(--muted)">Nothing added yet.</div>'}
+    <p class="grp" style="margin-top:16px">Overhead</p>
+    ${line("Labor · " + num(S.mins) + " mins", peso(c.labor))}
+    ${c.extras.filter(e => e.amount).map(e => line(esc(e.name || "Other"), peso(e.amount))).join("")}
+    <hr style="margin:14px 0 10px">
+    ${line("Total cost", peso(c.total), "strong")}
+    ${line("Mark up (" + num(S.markup) + "%)", peso(c.markAmt))}
+    <div class="price">
+      <small>Selling price</small>
+      <div class="big">${peso(c.price)}</div>
+      ${num(S.roundTo) > 0 ? `<div class="rnd">Round up: ${peso(c.rounded)}</div>` : ""}
+    </div>
+    <div class="keep">You keep <strong>${peso(c.rounded - c.total)}</strong> per sale.</div>
+    <div class="warn">Break-even: ${peso(c.total)}. Don’t sell below it.</div>`;
+}
+
+function renderAll() { renderRows(); renderSaved(); renderExtras(); renderSheet(); }
+function refresh() { save(); renderSheet(); }
+
+/* inputs */
+[["rate","rate"],["mins","mins"],["hrs","hrs"],["markup","markup"],["roundTo","roundTo"]].forEach(([id, k]) => {
+  $(id).value = S[k];
+  $(id).addEventListener("input", e => { S[k] = e.target.value; refresh(); });
+});
+
+$("rows").addEventListener("input", e => {
+  const row = e.target.closest(".row"); if (!row || !e.target.dataset.f) return;
+  const m = S.materials.find(x => x.id === row.dataset.id);
+  m[e.target.dataset.f] = e.target.value;
+  row.querySelector(".tot").textContent = peso(num(m.qty) * num(m.unit));
+  refresh();
+});
+$("rows").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = b.closest(".row").dataset.id;
+  if (b.dataset.act === "del") { S.materials = S.materials.filter(m => m.id !== id); save(); renderRows(); renderSheet(); }
+  else openMat(id);
+});
+
+$("extras").addEventListener("input", e => {
+  const r = e.target.closest(".extra"); if (!r || !e.target.dataset.f) return;
+  S.extras.find(x => x.id === r.dataset.id)[e.target.dataset.f] = e.target.value; refresh();
+});
+$("extras").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  S.extras = S.extras.filter(x => x.id !== b.closest(".extra").dataset.id);
+  save(); renderExtras(); renderSheet();
+});
+$("addExtra").onclick = () => { S.extras.push({id: uid(), name: "", amount: 0}); save(); renderExtras(); renderSheet(); };
+
+$("saved").addEventListener("change", e => {
+  const s = S.saved.find(x => x.id === e.target.value);
+  if (s) { S.materials.push({id: uid(), name: s.name, note: s.note, qty: 1, unit: s.unit}); save(); renderRows(); renderSheet(); }
+  e.target.value = "";
+});
+
+/* material dialog */
+let editing = null;
+function openMat(id) {
+  editing = id || null;
+  const m = id ? S.materials.find(x => x.id === id) : {name: "", note: "", qty: 1, unit: 0};
+  $("matTitle").textContent = id ? "Edit material" : "Add material";
+  $("mName").value = m.name; $("mNote").value = m.note; $("mQty").value = m.qty; $("mUnit").value = m.unit;
+  $("mSave").checked = false;
+  $("matDlg").showModal(); $("mName").focus();
+}
+$("addBtn").onclick = () => openMat();
+$("matForm").addEventListener("submit", () => {
+  const data = {name: $("mName").value.trim(), note: $("mNote").value.trim(), qty: $("mQty").value, unit: $("mUnit").value};
+  if (!data.name) return;
+  if (editing) Object.assign(S.materials.find(x => x.id === editing), data);
+  else S.materials.push({id: uid(), ...data});
+  if ($("mSave").checked) S.saved.push({id: uid(), name: data.name, note: data.note, unit: data.unit});
+  save(); renderAll();
+});
+
+/* ink dialog */
+function inkCalc() {
+  const y = num($("iYield").value);
+  const cost = y > 0 ? num($("iPrice").value) / y * num($("iPages").value) : 0;
+  $("iResult").textContent = "Ink cost: " + peso(cost);
+  return cost;
+}
+["iPrice", "iYield", "iPages"].forEach(id => $(id).addEventListener("input", inkCalc));
+$("inkBtn").onclick = () => { $("inkDlg").showModal(); $("iPrice").focus(); inkCalc(); };
+$("inkForm").addEventListener("submit", () => {
+  const cost = inkCalc(); if (!cost) return;
+  const note = [$("iNote").value.trim(), num($("iPages").value) + " pages"].filter(Boolean).join(", ");
+  S.materials.push({id: uid(), name: "Printer ink", note, qty: 1, unit: Math.round(cost * 100) / 100});
+  save(); renderAll();
+});
+
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
+renderAll();
+</script>
+</body>
+</html>
